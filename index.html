@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container Packing Calculator</title>
+</head>
+<body>
+    <form id="packingForm">
+        <p>Контейнер</p>
+        <label>
+            Вес:
+            <input type="text" name="containerWeight" id="containerWeight" value="22000" required>
+        </label>
+        <label>
+            Объем:
+            <input type="text" name="containerVolume" id="containerVolume" value="68" required>
+        </label>
+    
+        <p>Товар A</p>
+        <label>
+            Вес:
+            <input type="text" name="AWeight" id="AWeight" value="10" required>
+        </label>
+        <label>
+            Объем:
+            <input type="text" name="AVolume" id="AVolume" value="0.1" required>
+        </label>
+    
+        <p>Товар B</p>
+        <label>
+            Вес:
+            <input type="text" name="BWeight" id="BWeight" value="100" required>
+        </label>
+        <label>
+            Объем:
+            <input type="text" name="BVolume" id="BVolume" value="0.05" required>
+        </label>
+        <button type="submit">Рассчитать</button>
+    </form>
+
+    <p id="answer"></p>
+
+    <script>
+        document.getElementById('packingForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем отправку формы
+
+            // Получаем значения из формы
+            const maxWeight = parseInt(document.getElementById('containerWeight').value);
+            const maxVolume = parseFloat(document.getElementById('containerVolume').value);
+
+            const weightA = parseInt(document.getElementById('AWeight').value);
+            const volumeA = parseFloat(document.getElementById('AVolume').value);
+
+            const weightB = parseInt(document.getElementById('BWeight').value);
+            const volumeB = parseFloat(document.getElementById('BVolume').value);
+
+            // Переменные для хранения оптимального решения
+            let bestCombination = { countA: 0, countB: 0 };
+            let maxUtilization = 0;
+
+            // Перебор всех возможных комбинаций
+            for (let countA = 0; countA * weightA <= maxWeight; countA++) {
+                for (let countB = 0; countA * weightA + countB * weightB <= maxWeight && countB * volumeB <= maxVolume; countB++) {
+                    // Вычисляем общий вес и общий объем для текущей комбинации
+                    const totalWeight = countA * weightA + countB * weightB;
+                    const totalVolume = countA * volumeA + countB * volumeB;
+
+                    // Проверяем, укладывается ли текущая комбинация в ограничения контейнера
+                    if (totalWeight <= maxWeight && totalVolume <= maxVolume) {
+                        // Вычисляем утилизацию контейнера (сумма веса и объема)
+                        const utilization = totalWeight + totalVolume;
+
+                        // Обновляем оптимальное решение, если текущая комбинация лучше предыдущих
+                        if (utilization > maxUtilization) {
+                            maxUtilization = utilization;
+                            bestCombination = { countA, countB };
+                        }
+                    }
+                }
+            }
+
+            // Формируем сообщение с результатами
+            const answerElement = document.getElementById('answer');
+            answerElement.innerHTML = `
+                <strong>Оптимальная комбинация товаров:</strong><br>
+                Товар A: ${bestCombination.countA}<br>
+                Товар B: ${bestCombination.countB}<br>
+                Общий вес: ${bestCombination.countA * weightA + bestCombination.countB * weightB} кг<br>
+                Общий объем: ${bestCombination.countA * volumeA + bestCombination.countB * volumeB} м³<br>
+                Общая утилизация: ${maxUtilization}
+            `;
+        });
+    </script>
+</body>
+</html>
